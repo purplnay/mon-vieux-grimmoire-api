@@ -1,11 +1,9 @@
-import { Router, json } from "express";
+import { Router } from "express";
 import User from "../models/User.mjs";
 import { compare, hash } from "bcrypt";
 import jsonwebtoken from "jsonwebtoken";
 
 const authRouter = Router();
-
-authRouter.use(json());
 
 authRouter.post("/signup", async (req, res) => {
   const user = new User({

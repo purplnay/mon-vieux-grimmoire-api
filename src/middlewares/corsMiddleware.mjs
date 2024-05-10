@@ -1,4 +1,3 @@
-// Accept CORS requests
 export const corsMiddleware = () => {
   return (req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "*");

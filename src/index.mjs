@@ -2,6 +2,8 @@ import { connect } from "mongoose";
 import express from "express";
 import authRouter from "./routes/auth.mjs";
 import { corsMiddleware } from "./middlewares/corsMiddleware.mjs";
+import { join } from "path";
+import booksRouter from "./routes/books.mjs";
 
 // Connect to the database
 try {
@@ -18,9 +20,12 @@ const app = express();
 
 // Global middlewares
 app.use(corsMiddleware());
+app.use(express.json());
 
 // Routes
+app.use("/images", express.static(join(import.meta.dirname, "..", "images")));
 app.use("/api/auth", authRouter);
+app.use("/api/books", booksRouter);
 
 // Start the HTTP server
 app.listen(4000, () => {
