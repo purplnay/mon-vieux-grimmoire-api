@@ -1,0 +1,14 @@
+{
+  "name": "mon-vieux-grimmoire-api",
+  "version": "1.0.0",
+  "description": "API du site de livres Mon Vieux Grimmoire.",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "private": true
+}
