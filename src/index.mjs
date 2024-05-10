@@ -1,4 +1,5 @@
 import { connect } from "mongoose";
+import express from "express";
 
 // Connect to the database
 try {
@@ -9,3 +10,11 @@ try {
 }
 
 console.log("Connected to MongoDB!");
+
+// Setup the HTTP server
+const app = express();
+
+// Start the HTTP server
+app.listen(4000, () => {
+  console.log("API started on *:4000");
+});
