@@ -1,5 +1,7 @@
 import { connect } from "mongoose";
 import express from "express";
+import authRouter from "./routes/auth.mjs";
+import { corsMiddleware } from "./middlewares/corsMiddleware.mjs";
 
 // Connect to the database
 try {
@@ -11,8 +13,14 @@ try {
 
 console.log("Connected to MongoDB!");
 
-// Setup the HTTP server
+// Create the HTTP server
 const app = express();
+
+// Global middlewares
+app.use(corsMiddleware());
+
+// Routes
+app.use("/api/auth", authRouter);
 
 // Start the HTTP server
 app.listen(4000, () => {
