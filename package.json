@@ -2,13 +2,18 @@
   "name": "mon-vieux-grimmoire-api",
   "version": "1.0.0",
   "description": "API du site de livres Mon Vieux Grimmoire.",
-  "type": "module",
-  "main": "src/index.js",
+  "main": "src/index.mjs",
   "scripts": {
+    "start": "node -r dotenv/config src/index.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "UNLICENSED",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "mongoose": "^8.3.4",
+    "mongoose-unique-validator": "^5.0.0"
+  }
 }

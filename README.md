@@ -23,4 +23,4 @@ npm start
 
 ## Configuration
 
-Les variables d'environnement sont configurable dans le fichier `.env`.
+Les variables d'environnement sont configurable dans le fichier `.env` qui peut être basé sur le fichier `.env.example`.
