@@ -2,17 +2,10 @@ import { Router } from "express";
 import { authMiddleware } from "../middlewares/authMiddleware.mjs";
 import Book from "../models/Book.mjs";
 import multer from "multer";
-import { randomUUID } from "crypto";
-import { existsSync } from "fs";
-import { writeFile, mkdir } from "fs/promises";
+import sharp from "sharp";
+import { writeFile } from "fs/promises";
 import { join } from "path";
-
-// Create the images directory if needed
-const imagesDir = join(import.meta.dirname, "..", "..", "images");
-
-if (!existsSync(imagesDir)) {
-  mkdir(imagesDir);
-}
+import { generateFilename, imagesDir } from "../lib/generateFilename.mjs";
 
 const booksRouter = Router();
 
@@ -53,10 +46,7 @@ booksRouter.post(
     const image = req.file;
 
     const buffer = await sharp(image.buffer).webp().toBuffer();
-    let filename;
-    do {
-      filename = `${randomUUID()}.webp`;
-    } while (existsSync(join(imagesDir, filename)));
+    const filename = generateFilename();
 
     const book = new Book({
       userId: req.auth._id,
@@ -77,12 +67,45 @@ booksRouter.post(
 
     try {
       await writeFile(join(imagesDir, filename), buffer);
-    } catch (error) {
-      console.error(error);
+    } catch {
       return res.status(400).json({ message: "Image invalide." });
     }
 
     res.status(201).json({ message: "201: created" });
+  }
+);
+
+booksRouter.put(
+  "/:id",
+  authMiddleware(),
+  multer().single("image"),
+  async (req, res) => {
+    const image = req.file;
+    const data = image ? JSON.parse(req.body.book) : req.body;
+
+    let buffer = null;
+    let filename = null;
+    if (image) {
+      buffer = await sharp(image.buffer).webp().toBuffer();
+      filename = generateFilename();
+      data.imageUrl = `${req.protocol}://${req.get("host")}/images/${filename}`;
+    }
+
+    try {
+      await Book.updateOne({ _id: req.params.id }, data);
+    } catch (error) {
+      return res.status(400).json(error);
+    }
+
+    if (buffer && filename) {
+      try {
+        await writeFile(join(imagesDir, filename), buffer);
+      } catch {
+        return res.status(400).json({ message: "Image invalide." });
+      }
+    }
+
+    res.json({ message: "200: ok" });
   }
 );
 
