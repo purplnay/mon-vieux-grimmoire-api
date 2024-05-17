@@ -124,9 +124,43 @@ booksRouter.delete("/:id", authMiddleware(), async (req, res) => {
   const filename = filenameParts[filenameParts.length - 1];
 
   await rm(join(imagesDir, filename));
-  await Book.deleteOne({ _id: book._id });
+
+  try {
+    await Book.deleteOne({ _id: book._id });
+  } catch (error) {
+    return res.status(400).json(error);
+  }
 
   res.json({ message: "200: ok" });
+});
+
+booksRouter.post("/:id/rating", authMiddleware(), async (req, res) => {
+  const book = await Book.findOne({ _id: req.params.id });
+
+  if (!book) {
+    return res.status(404).json({ message: "404: not found" });
+  }
+
+  if (book.ratings.find((r) => r.userId.toString() === req.auth._id)) {
+    return res.status(400).json({ message: "Vous avez déjà noté ce livre." });
+  }
+
+  book.ratings.push({ userId: req.auth._id, grade: req.body.rating });
+
+  let average = 0;
+  book.ratings.forEach((rating) => {
+    average += rating.grade;
+  });
+
+  book.averageRating = Math.round(average / book.ratings.length);
+
+  try {
+    await book.save();
+  } catch (error) {
+    return res.status(400).json(error);
+  }
+
+  res.json(book);
 });
 
 export default booksRouter;
