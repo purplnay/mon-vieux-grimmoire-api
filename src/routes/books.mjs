@@ -3,7 +3,7 @@ import { authMiddleware } from "../middlewares/authMiddleware.mjs";
 import Book from "../models/Book.mjs";
 import multer from "multer";
 import sharp from "sharp";
-import { writeFile } from "fs/promises";
+import { writeFile, rm } from "fs/promises";
 import { join } from "path";
 import { generateFilename, imagesDir } from "../lib/generateFilename.mjs";
 
@@ -108,5 +108,25 @@ booksRouter.put(
     res.json({ message: "200: ok" });
   }
 );
+
+booksRouter.delete("/:id", authMiddleware(), async (req, res) => {
+  const book = await Book.findOne({ _id: req.params.id });
+
+  if (!book) {
+    return res.status(404).json({ message: "404: not found" });
+  }
+
+  if (book.userId.toString() !== req.auth._id) {
+    return res.status(401).json({ message: "401: unauthorized" });
+  }
+
+  const filenameParts = book.imageUrl.split("/");
+  const filename = filenameParts[filenameParts.length - 1];
+
+  await rm(join(imagesDir, filename));
+  await Book.deleteOne({ _id: book._id });
+
+  res.json({ message: "200: ok" });
+});
 
 export default booksRouter;
