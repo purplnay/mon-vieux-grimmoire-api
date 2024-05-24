@@ -15,21 +15,10 @@ booksRouter.get("/", async (req, res) => {
   res.json(books);
 });
 
-booksRouter.get("/:id", async (req, res) => {
-  let book;
-  try {
-    book = await Book.findOne({ _id: req.params.id });
-  } catch (error) {
-    return res.status(404).json(error);
-  }
-
-  res.json(book);
-});
-
 booksRouter.get("/bestrating", async (req, res) => {
   let books;
   try {
-    books = Book.find().limit(3).sort("averageRating").exec();
+    books = await Book.find().limit(3).sort("averageRating").exec();
   } catch (error) {
     return res.status(500).json(error);
   }
@@ -74,6 +63,46 @@ booksRouter.post(
     res.status(201).json({ message: "201: created" });
   }
 );
+
+booksRouter.post("/:id/rating", authMiddleware(), async (req, res) => {
+  const book = await Book.findOne({ _id: req.params.id });
+
+  if (!book) {
+    return res.status(404).json({ message: "404: not found" });
+  }
+
+  if (book.ratings.find((r) => r.userId.toString() === req.auth._id)) {
+    return res.status(400).json({ message: "Vous avez déjà noté ce livre." });
+  }
+
+  book.ratings.push({ userId: req.auth._id, grade: req.body.rating });
+
+  let average = 0;
+  book.ratings.forEach((rating) => {
+    average += rating.grade;
+  });
+
+  book.averageRating = Math.round(average / book.ratings.length);
+
+  try {
+    await book.save();
+  } catch (error) {
+    return res.status(400).json(error);
+  }
+
+  res.json(book);
+});
+
+booksRouter.get("/:id", async (req, res) => {
+  let book;
+  try {
+    book = await Book.findOne({ _id: req.params.id });
+  } catch (error) {
+    return res.status(404).json(error);
+  }
+
+  res.json(book);
+});
 
 booksRouter.put(
   "/:id",
@@ -132,35 +161,6 @@ booksRouter.delete("/:id", authMiddleware(), async (req, res) => {
   }
 
   res.json({ message: "200: ok" });
-});
-
-booksRouter.post("/:id/rating", authMiddleware(), async (req, res) => {
-  const book = await Book.findOne({ _id: req.params.id });
-
-  if (!book) {
-    return res.status(404).json({ message: "404: not found" });
-  }
-
-  if (book.ratings.find((r) => r.userId.toString() === req.auth._id)) {
-    return res.status(400).json({ message: "Vous avez déjà noté ce livre." });
-  }
-
-  book.ratings.push({ userId: req.auth._id, grade: req.body.rating });
-
-  let average = 0;
-  book.ratings.forEach((rating) => {
-    average += rating.grade;
-  });
-
-  book.averageRating = Math.round(average / book.ratings.length);
-
-  try {
-    await book.save();
-  } catch (error) {
-    return res.status(400).json(error);
-  }
-
-  res.json(book);
 });
 
 export default booksRouter;
