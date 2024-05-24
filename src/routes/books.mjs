@@ -18,7 +18,7 @@ booksRouter.get("/", async (req, res) => {
 booksRouter.get("/bestrating", async (req, res) => {
   let books;
   try {
-    books = await Book.find().limit(3).sort("averageRating").exec();
+    books = await Book.find().limit(3).sort({ averageRating: "desc" }).exec();
   } catch (error) {
     return res.status(500).json(error);
   }
