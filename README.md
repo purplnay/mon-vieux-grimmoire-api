@@ -23,11 +23,6 @@ npm start
 
 ## Configuration
 
+**/!\\ Le fichier .env est déjà disponible et fonctionnel tel quel pour les besoins de la formation, ignorer l'instruction ci-dessous. /!\\**
+
 Les variables d'environnement sont configurable dans le fichier `.env` qui peut être basé sur le fichier `.env.example`.
-
-Copier-coller ces valeurs dans le fichier `.env.` afin d'avoir une configuration prête à l'utilisation :
-
-```
-MONGO_URI="mongodb+srv://purplnay:0wl5u1HnUhtVW4f@cluster0.4fyy61g.mongodb.net/mon-vieux-grimmoire?retryWrites=true&w=majority&appName=Cluster0"
-SECRET="some secret key"
-```
